@@ -60,6 +60,39 @@ function parser(tokens) {
   return AST;
 }
 
+function transformer(ast) {
+  let svg_ast = {
+    tag: "svg",
+    attr: {
+      width: 100,
+      height: 100,
+      viewBox: "0 0 100 100",
+      xmlns: "http://w3.org/2000/svg",
+      version: "1.1",
+    },
+    body: [],
+  };
+
+  while (ast.body.length > 0) {
+    let node = ast.body.shift();
+    let paper_color = 100 - node.arguments[0].value;
+    svg_ast.body.push({
+      tag: "rect",
+      attr: {
+        x: 0,
+        y: 0,
+        width: 100,
+        height: 100,
+        fill:
+          "rgb(" + paper_color + "%," + paper_color + "%," + paper_color + "%)",
+      },
+    });
+    break;
+  }
+
+  return svg_ast;
+}
+
 const tokens = lexer(thread);
 
 const parsed = parser(lexer(thread));
