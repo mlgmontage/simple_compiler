@@ -1,11 +1,15 @@
 console.log("compiler");
 
-const thread = "Hello, My name is Compiler";
+const thread = "Hello my name is";
 
-const tokens = thread.split(/\s+/).map((token) => {
-  return isNaN(token)
-    ? { type: "word", value: token }
-    : { type: "number", value: token };
-});
+// simple lexer
+const tokens = thread
+  .split(/\s+/)
+  .filter((t) => t.length > 0)
+  .map((token) => {
+    return isNaN(token)
+      ? { type: "word", value: token }
+      : { type: "number", value: token };
+  });
 
-console.log(tokens);
+console.table(tokens);
