@@ -1,6 +1,6 @@
 console.log("compiler");
 
-const thread = "Paper 100 Line 0 0 200 100";
+const thread = "Paper 100 Line 0 0 500 500 Line 500 0 0 500 Line 0 250 250 500";
 
 // const line = [1, 2, 3];
 // console.log(line.shift());
@@ -136,8 +136,8 @@ function transformer(ast) {
           attr: {
             x: 0,
             y: 0,
-            width: 200,
-            height: 100,
+            width: 500,
+            height: 500,
             fill:
               "rgb(" +
               paper_color +
