@@ -1,6 +1,6 @@
 console.log("compiler");
 
-const thread = "Paper 100";
+const thread = "Paper 100 Line 0 0 200 100";
 
 // const line = [1, 2, 3];
 // console.log(line.shift());
@@ -30,12 +30,13 @@ function parser(tokens) {
   // extract tokens
   while (tokens.length > 0) {
     let current_token = tokens.shift();
+    let expression = {};
 
     // analyze words
     if (current_token.type === "word") {
       switch (current_token.value) {
         case "Paper":
-          let expression = {
+          expression = {
             type: "CallExpression",
             name: "Paper",
             arguments: [],
@@ -53,6 +54,56 @@ function parser(tokens) {
             throw "Paper command must be followed by a number";
           }
           break;
+
+        case "Line":
+          expression = {
+            type: "CallExpression",
+            name: "Line",
+            arguments: [],
+          };
+
+          let x1 = tokens.shift();
+          let y1 = tokens.shift();
+          let x2 = tokens.shift();
+          let y2 = tokens.shift();
+
+          if (x1.type === "number") {
+            expression.arguments.push({
+              type: "NumberLiteral",
+              value: x1.value,
+            });
+          } else {
+            throw "Line command must be followed by a number";
+          }
+
+          if (y1.type === "number") {
+            expression.arguments.push({
+              type: "NumberLiteral",
+              value: y1.value,
+            });
+          } else {
+            throw "Line command must be followed by a number";
+          }
+
+          if (x2.type === "number") {
+            expression.arguments.push({
+              type: "NumberLiteral",
+              value: x2.value,
+            });
+          } else {
+            throw "Line command must be followed by a number";
+          }
+
+          if (y2.type === "number") {
+            expression.arguments.push({
+              type: "NumberLiteral",
+              value: y2.value,
+            });
+          } else {
+            throw "Line command must be followed by a number";
+          }
+
+          AST.body.push(expression);
       }
     }
   }
@@ -64,9 +115,9 @@ function transformer(ast) {
   let svg_ast = {
     tag: "svg",
     attr: {
-      width: 100,
-      height: 100,
-      viewBox: "0 0 100 100",
+      width: 500,
+      height: 500,
+      viewBox: "0 0 500 500",
       xmlns: "http://w3.org/2000/svg",
       version: "1.1",
     },
@@ -75,19 +126,42 @@ function transformer(ast) {
 
   while (ast.body.length > 0) {
     let node = ast.body.shift();
-    let paper_color = 100 - node.arguments[0].value;
-    svg_ast.body.push({
-      tag: "rect",
-      attr: {
-        x: 0,
-        y: 0,
-        width: 100,
-        height: 100,
-        fill:
-          "rgb(" + paper_color + "%," + paper_color + "%," + paper_color + "%)",
-      },
-    });
-    break;
+    let pen_color = 100;
+
+    switch (node.name) {
+      case "Paper":
+        let paper_color = 100 - node.arguments[0].value;
+        svg_ast.body.push({
+          tag: "rect",
+          attr: {
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 100,
+            fill:
+              "rgb(" +
+              paper_color +
+              "%," +
+              paper_color +
+              "%," +
+              paper_color +
+              "%)",
+          },
+        });
+        break;
+
+      case "Line":
+        svg_ast.body.push({
+          tag: "line",
+          attr: {
+            x1: node.arguments[0].value,
+            y1: node.arguments[1].value,
+            x2: node.arguments[2].value,
+            y2: node.arguments[3].value,
+            style: "stroke:rgb(255, 0, 0); stroke-width:2",
+          },
+        });
+    }
   }
 
   return svg_ast;
@@ -108,7 +182,6 @@ function generator(svg_ast) {
   // for each elements in the body of svg_ast, generate svg tag
   let elements = svg_ast.body
     .map((node) => {
-      console.log(node.attr);
       return (
         "<" +
         node.tag +
@@ -132,9 +205,10 @@ const transformed = transformer(parser(lexer(thread)));
 
 const svg = generator(transformer(parser(lexer(thread))));
 
-console.table(tokens);
-console.log(parsed);
-console.log(transformed);
-console.log(svg);
+console.log(thread); // code
+console.log(tokens); // tokens
+console.log(parsed); // parsed
+console.log(transformed); // transformed to svg friendly form
+console.log(svg); // output
 
 document.body.innerHTML = svg;
