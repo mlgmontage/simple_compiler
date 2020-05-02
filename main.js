@@ -93,9 +93,48 @@ function transformer(ast) {
   return svg_ast;
 }
 
+function generator(svg_ast) {
+  // create attributes string out of attr object
+  const createAttrString = (attr) => {
+    return Object.keys(attr)
+      .map((key) => {
+        return key + '="' + attr[key] + '"';
+      })
+      .join(" ");
+  };
+
+  let svg_attr = createAttrString(svg_ast.attr);
+
+  // for each elements in the body of svg_ast, generate svg tag
+  let elements = svg_ast.body
+    .map((node) => {
+      console.log(node.attr);
+      return (
+        "<" +
+        node.tag +
+        " " +
+        createAttrString(node.attr) +
+        "></" +
+        node.tag +
+        ">"
+      );
+    })
+    .join("\n\t");
+
+  return "<svg " + svg_attr + ">\n" + elements + "\n</svg>";
+}
+
 const tokens = lexer(thread);
 
 const parsed = parser(lexer(thread));
 
+const transformed = transformer(parser(lexer(thread)));
+
+const svg = generator(transformer(parser(lexer(thread))));
+
 console.table(tokens);
 console.log(parsed);
+console.log(transformed);
+console.log(svg);
+
+document.body.innerHTML = svg;
